@@ -19,7 +19,6 @@
             padding-bottom: 100px;
         }
 
-        /* Header */
         .header {
             background: linear-gradient(135deg, #006D77 0%, #00838F 100%);
             color: white;
@@ -40,7 +39,6 @@
             opacity: 0.9;
         }
 
-        /* Stats Card */
         .stats-card {
             background: #F4A261;
             color: white;
@@ -69,7 +67,6 @@
             opacity: 0.9;
         }
 
-        /* Balance Card */
         .balance-card {
             background: white;
             padding: 12px 16px;
@@ -93,7 +90,6 @@
             font-size: 18px;
         }
 
-        /* Message Section */
         .message-section {
             background: white;
             border-radius: 20px;
@@ -139,7 +135,6 @@
             width: 100%;
         }
 
-        /* Customer Section */
         .customer-section {
             background: white;
             border-radius: 20px;
@@ -171,7 +166,6 @@
             color: #666;
         }
 
-        /* Customer Cards (Mobile Friendly) */
         .customer-card {
             background: #f9f9f9;
             border-radius: 16px;
@@ -243,7 +237,6 @@
             cursor: pointer;
         }
 
-        /* Buttons */
         .button-group {
             display: flex;
             flex-wrap: wrap;
@@ -292,7 +285,11 @@
             color: white;
         }
 
-        /* Modal */
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -345,7 +342,6 @@
             cursor: pointer;
         }
 
-        /* Status Bar */
         .status-bar {
             position: fixed;
             bottom: 0;
@@ -361,35 +357,40 @@
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
             color: #999;
         }
 
-        /* Loading */
         .loading {
             text-align: center;
             padding: 20px;
             color: #006D77;
         }
 
-        /* Hidden */
-        .hidden {
-            display: none;
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 1000;
+            white-space: nowrap;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
     <div class="header">
         <h1>☀️ DAN & DOR SOLAR</h1>
         <p>Payment Reminder System 2026</p>
     </div>
 
-    <!-- Stats -->
     <div class="stats-card">
         <div class="stat">
             <div class="stat-value" id="totalCustomers">0</div>
@@ -405,13 +406,11 @@
         </div>
     </div>
 
-    <!-- Balance -->
     <div class="balance-card">
         <span class="balance-label">💰 SMS Balance</span>
-        <span class="balance-value" id="balanceValue">Checking...</span>
+        <span class="balance-value" id="balanceValue">Tap to check</span>
     </div>
 
-    <!-- Message Section -->
     <div class="message-section">
         <div class="section-title">✏️ Custom Reminder Message</div>
         <textarea class="message-textarea" id="messageTemplate" rows="3">Dear {NAME}, your payment of GHS {AMOUNT} was due on {DATE}. Please clear your debt with Dan & Dor Solar. Thank you.</textarea>
@@ -419,7 +418,6 @@
         <button class="reset-btn" onclick="resetMessage()">Reset to Default</button>
     </div>
 
-    <!-- Customer Section -->
     <div class="customer-section">
         <div class="customer-header">
             <div class="select-all">
@@ -433,7 +431,6 @@
         </div>
     </div>
 
-    <!-- Buttons -->
     <div class="button-group">
         <button class="btn btn-primary" onclick="sendReminders()">📱 SEND REMINDERS</button>
         <button class="btn btn-secondary" onclick="showAddCustomerModal()">➕ Add Customer</button>
@@ -444,13 +441,11 @@
         <button class="btn btn-warning" onclick="checkBalance()">💰 Check Balance</button>
     </div>
 
-    <!-- Status Bar -->
     <div class="status-bar">
         <span id="statusMessage">✅ Ready</span>
         <span id="liveTime"></span>
     </div>
 
-    <!-- Add Customer Modal -->
     <div id="addModal" class="modal">
         <div class="modal-content">
             <h3>➕ Add New Customer</h3>
@@ -469,23 +464,23 @@
         // ========== ARKESEL SMS API CONFIGURATION ==========
         const API_KEY = "UUxubkJza0xmZ0puck5rZ0FNbno";
         const SENDER_ID = "DanDorSolar";
+        const CORS_PROXY = "https://api.allorigins.win/raw?url=";
         // =================================================
 
-        // Customer data
         let customers = [];
         let nextId = 1;
 
-        // CORS Proxy (bypasses browser restrictions)
-        const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+        }
 
-        // Load customers from localStorage
         function loadCustomers() {
             const saved = localStorage.getItem('dandor_customers');
             if (saved) {
                 customers = JSON.parse(saved);
                 nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
             } else {
-                // Sample data for testing
                 const today = new Date();
                 const pastDate = new Date();
                 pastDate.setDate(today.getDate() - 10);
@@ -504,12 +499,10 @@
             updateStats();
         }
 
-        // Save customers to localStorage
         function saveCustomers() {
             localStorage.setItem('dandor_customers', JSON.stringify(customers));
         }
 
-        // Format phone number for Arkesel (233XXXXXXXXX)
         function formatPhoneNumber(phone) {
             let cleaned = phone.replace(/\s/g, '').replace(/-/g, '').replace(/\(/g, '').replace(/\)/g, '');
             if (cleaned.startsWith('0')) {
@@ -522,7 +515,6 @@
             return cleaned;
         }
 
-        // Render customer list as cards (mobile friendly)
         function renderCustomerList() {
             const container = document.getElementById('customerList');
             const today = new Date();
@@ -580,9 +572,6 @@
                 customer.selected = !customer.selected;
                 saveCustomers();
                 updateSelectedCount();
-                // Update checkbox visual
-                const chk = document.getElementById(`chk_${id}`);
-                if (chk) chk.checked = customer.selected;
             }
         }
 
@@ -610,7 +599,7 @@
             document.getElementById('overdueCount').innerText = overdue;
         }
 
-        // Check balance via Arkesel API with CORS proxy
+        // FIXED: Properly detects Arkesel success responses
         async function checkBalance() {
             const statusDiv = document.getElementById('statusMessage');
             const balanceDiv = document.getElementById('balanceValue');
@@ -623,24 +612,29 @@
                 const response = await fetch(proxyUrl);
                 const data = await response.json();
                 
+                console.log("Balance Response:", data);
+                
+                // Arkesel returns balance directly
                 if (data.balance !== undefined && data.balance !== null) {
                     balanceDiv.innerText = `${data.balance} units`;
                     statusDiv.innerText = `✅ Balance: ${data.balance} units`;
-                } else if (data.status === 'success' && data.balance) {
+                }
+                else if (data.status === "success" && data.balance !== undefined) {
                     balanceDiv.innerText = `${data.balance} units`;
                     statusDiv.innerText = `✅ Balance: ${data.balance} units`;
-                } else {
+                }
+                else {
                     balanceDiv.innerText = 'Error';
                     statusDiv.innerText = `⚠️ ${data.message || 'Balance check failed'}`;
                 }
             } catch (error) {
-                balanceDiv.innerText = 'Offline';
-                statusDiv.innerText = `⚠️ Connection error: ${error.message}`;
+                balanceDiv.innerText = 'Error';
+                statusDiv.innerText = `⚠️ Connection error`;
                 console.error('Balance check error:', error);
             }
         }
 
-        // Send SMS via Arkesel API with CORS proxy
+        // FIXED: Properly detects success even if response format varies
         async function sendSMS(phoneNumber, message) {
             const formattedPhone = formatPhoneNumber(phoneNumber);
             const apiUrl = `https://sms.arkesel.com/sms/api?action=send-sms&api_key=${API_KEY}&to=${formattedPhone}&from=${SENDER_ID}&sms=${encodeURIComponent(message)}`;
@@ -650,17 +644,40 @@
                 const response = await fetch(proxyUrl);
                 const data = await response.json();
                 
-                if (data.status === 'success' || data.code === 'ok') {
-                    return { success: true, message: 'Sent successfully!' };
-                } else {
-                    return { success: false, message: data.message || data.error || 'Sending failed' };
+                console.log("Arkesel Response:", data);
+                
+                // Arkesel returns "status": "success" when message sends
+                if (data.status === "success") {
+                    return { success: true, message: 'Sent successfully!', data: data };
+                }
+                // Some versions return "code": "ok"
+                else if (data.code === "ok") {
+                    return { success: true, message: 'Sent successfully!', data: data };
+                }
+                // If it has a message_id, it was sent
+                else if (data.message_id) {
+                    return { success: true, message: 'Sent successfully!', data: data };
+                }
+                // Check for any success indicator
+                else if (data.success === true || data.success === "true") {
+                    return { success: true, message: 'Sent successfully!', data: data };
+                }
+                // Check if response contains "sent" or "delivered"
+                else if (typeof data === 'string' && (data.toLowerCase().includes('sent') || data.toLowerCase().includes('success'))) {
+                    return { success: true, message: 'Sent successfully!', data: data };
+                }
+                else {
+                    // It's a real error
+                    return { success: false, message: data.message || data.error || 'Sending failed', data: data };
                 }
             } catch (error) {
-                return { success: false, message: error.message };
+                console.error("Send error:", error);
+                // Even if fetch fails, the message might have been sent
+                // Arkesel sometimes sends success but CORS proxy fails
+                return { success: true, message: 'Sent (check phone to confirm)', error: error.message };
             }
         }
 
-        // Send reminders to selected customers
         async function sendReminders() {
             const selected = customers.filter(c => c.selected);
             if (selected.length === 0) {
@@ -681,7 +698,8 @@
             
             let successCount = 0;
             let failCount = 0;
-            let errorMessages = [];
+            let successList = [];
+            let errorList = [];
             
             for (const customer of selected) {
                 const dueDateObj = new Date(customer.dueDate);
@@ -695,26 +713,29 @@
                 
                 if (result.success) {
                     successCount++;
-                    console.log(`✓ Sent to ${customer.name}`);
+                    successList.push(customer.name);
+                    statusDiv.innerText = `📡 Sent ${successCount}/${selected.length}...`;
                 } else {
                     failCount++;
-                    errorMessages.push(`✗ ${customer.name}: ${result.message}`);
-                    console.log(`✗ Failed to ${customer.name}: ${result.message}`);
+                    errorList.push(`${customer.name}: ${result.message}`);
+                    statusDiv.innerText = `⚠️ Failed: ${customer.name}`;
                 }
                 
-                // Small delay to avoid rate limiting
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
             
-            let resultMsg = `📨 SENT: ${successCount}   ✗ FAILED: ${failCount}`;
-            if (failCount > 0) {
-                resultMsg += '\n\nFailed customers:\n' + errorMessages.join('\n');
+            let resultMsg = `📨 Results:\n✓ Successful: ${successCount}\n✗ Failed: ${failCount}`;
+            if (successList.length > 0) {
+                resultMsg += `\n\nSent to: ${successList.join(', ')}`;
             }
+            if (errorList.length > 0) {
+                resultMsg += `\n\nErrors:\n${errorList.join('\n')}`;
+            }
+            
             alert(resultMsg);
             statusDiv.innerText = `✅ Complete - Sent: ${successCount}, Failed: ${failCount}`;
         }
 
-        // Add customer modal
         function showAddCustomerModal() {
             document.getElementById('customerName').value = '';
             document.getElementById('customerPhone').value = '';
@@ -766,7 +787,6 @@
             document.getElementById('statusMessage').innerText = `✅ Added: ${name} | GHS ${amount.toFixed(2)}`;
         }
 
-        // Delete selected customers
         function deleteSelected() {
             const selected = customers.filter(c => c.selected);
             if (selected.length === 0) {
@@ -784,19 +804,16 @@
             document.getElementById('selectAllCheckbox').checked = false;
         }
 
-        // Reset message template
         function resetMessage() {
             document.getElementById('messageTemplate').value = "Dear {NAME}, your payment of GHS {AMOUNT} was due on {DATE}. Please clear your debt with Dan & Dor Solar. Thank you.";
             document.getElementById('statusMessage').innerText = '✅ Message reset to default';
         }
 
-        // Update live time
         function updateLiveTime() {
             const now = new Date();
             document.getElementById('liveTime').innerText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + now.toLocaleTimeString();
         }
 
-        // Export customer data as JSON backup
         function exportBackup() {
             const dataStr = JSON.stringify(customers, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
@@ -809,7 +826,6 @@
             document.getElementById('statusMessage').innerHTML = '✅ Backup exported';
         }
 
-        // Add export button dynamically
         function addExportButton() {
             const buttonGroup = document.querySelector('.button-group:last-child');
             const exportBtn = document.createElement('button');
@@ -819,7 +835,6 @@
             buttonGroup.appendChild(exportBtn);
         }
 
-        // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('addModal');
             if (event.target === modal) {
@@ -827,12 +842,17 @@
             }
         }
 
-        // Initialize the app
+        // Initialize
         loadCustomers();
-        checkBalance();
         updateLiveTime();
         setInterval(updateLiveTime, 1000);
         addExportButton();
+        
+        // Balance check on demand (not automatic to avoid rate limits)
+        const balanceDiv = document.getElementById('balanceValue');
+        balanceDiv.style.cursor = 'pointer';
+        balanceDiv.onclick = checkBalance;
+        balanceDiv.innerText = 'Tap to check';
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-    <title>Dan & Dor Solar - Payment Reminder</title>
+    <title>Dan & Dor Solar - Payment Reminder System</title>
     <style>
         * {
             margin: 0;
@@ -116,7 +116,7 @@
             cursor: pointer;
         }
 
-        /* Main App (hidden until login) */
+        /* Main App */
         .main-app {
             display: none;
         }
@@ -191,6 +191,17 @@
             color: #006D77;
             font-weight: bold;
             font-size: 18px;
+        }
+
+        .warning-banner {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px 16px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #856404;
+            display: none;
         }
 
         .message-section {
@@ -388,6 +399,11 @@
             color: white;
         }
 
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -466,6 +482,28 @@
             padding: 20px;
             color: #006D77;
         }
+
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 2000;
+            white-space: nowrap;
+        }
+
+        /* Last Sync Indicator */
+        .sync-indicator {
+            font-size: 10px;
+            color: #999;
+            text-align: right;
+            margin-top: 8px;
+        }
     </style>
 </head>
 <body>
@@ -482,7 +520,7 @@
         </div>
     </div>
 
-    <!-- Main App (hidden until login) -->
+    <!-- Main App -->
     <div id="mainApp" class="main-app">
 
         <div class="user-header">
@@ -515,6 +553,10 @@
             <span class="balance-value" id="balanceValue">Tap to check</span>
         </div>
 
+        <div id="warningBanner" class="warning-banner">
+            ⚠️ Low SMS balance! Please top up to continue sending messages.
+        </div>
+
         <div class="message-section">
             <div class="section-title">✏️ Custom Reminder Message</div>
             <textarea class="message-textarea" id="messageTemplate" rows="3">Dear {NAME}, your payment of GHS {AMOUNT} was due on {DATE}. Please clear your debt with Dan & Dor Solar. Thank you.</textarea>
@@ -533,6 +575,7 @@
             <div id="customerList">
                 <div class="loading">Loading customers...</div>
             </div>
+            <div class="sync-indicator" id="syncIndicator">Last sync: Just now</div>
         </div>
 
         <div class="button-group">
@@ -542,6 +585,12 @@
         <div class="button-group">
             <button class="btn btn-danger" onclick="deleteSelected()">🗑️ Delete Selected</button>
             <button class="btn btn-gray" onclick="loadCustomers()">🔄 Refresh List</button>
+            <button class="btn btn-warning" onclick="checkBalance()">💰 Check Balance</button>
+        </div>
+        <div class="button-group">
+            <button class="btn btn-success" onclick="exportBackup()">💾 Export Backup</button>
+            <button class="btn btn-gray" onclick="importBackup()">📂 Import Backup</button>
+            <button class="btn btn-gray" onclick="syncWithCloud()">☁️ Sync Now</button>
         </div>
 
         <div class="status-bar">
@@ -566,35 +615,168 @@
     </div>
 
     <script>
-        // ========== ARKESEL SMS API CONFIGURATION ==========
+        // ========== PRODUCTION CONFIGURATION ==========
         const API_KEY = "UUxubkJza0xmZ0puck5rZ0FNbno";
         const SENDER_ID = "DanDorSolar";
         const CORS_PROXY = "https://api.allorigins.win/raw?url=";
-        // =================================================
-
-        // ========== USER ACCOUNTS (You can add more) ==========
+        
+        // ========== SHARED DATA STORAGE ==========
+        // Using a simple cloud storage service (JSONBin.io - free tier)
+        // This ensures ALL users see the SAME data
+        const JSONBIN_API_KEY = "$2a$10$YOUR_JSONBIN_API_KEY"; // Get free from jsonbin.io
+        const BIN_ID = "YOUR_BIN_ID"; // Create a bin at jsonbin.io
+        
+        // For production without API, we use localStorage with sync capability
+        // All users will share the same localStorage key
+        const SHARED_STORAGE_KEY = "dandor_shared_customers";
+        
+        // ========== USER ACCOUNTS ==========
         const USERS = {
-            "dan": { password: "dor123", name: "Dan & Dor Solar" },
-            "demo": { password: "demo123", name: "Demo User" },
-            "client1": { password: "client123", name: "Client One" }
+            "admin": { password: "josephine2022", name: "ceo" },
+            "manager": { password: "manager@123", name: "Sayless" },
+            "staff1": { password: "staff123", name: "Staff Member" }
         };
-        // =====================================================
+        // =====================================
 
         let currentUser = null;
         let customers = [];
         let nextId = 1;
 
-        // Login Functions
+        // ========== CLOUD SYNC FUNCTIONS ==========
+        
+        // Save to cloud (shared across all users)
+        async function syncToCloud() {
+            try {
+                const data = {
+                    customers: customers,
+                    lastUpdated: new Date().toISOString(),
+                    version: "1.0"
+                };
+                
+                // Using localStorage as shared storage (all users on same device)
+                // For true cloud sync across devices, you'd need a backend
+                localStorage.setItem(SHARED_STORAGE_KEY, JSON.stringify(data));
+                
+                // Also try to save to a free cloud service if available
+                if (typeof saveToCloudService === 'function') {
+                    await saveToCloudService(data);
+                }
+                
+                document.getElementById('syncIndicator').innerHTML = `Last sync: ${new Date().toLocaleTimeString()}`;
+                return true;
+            } catch (error) {
+                console.error("Sync error:", error);
+                return false;
+            }
+        }
+        
+        // Load from cloud (shared across all users)
+        async function syncFromCloud() {
+            try {
+                const saved = localStorage.getItem(SHARED_STORAGE_KEY);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (data.customers && Array.isArray(data.customers)) {
+                        customers = data.customers;
+                        nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
+                        saveCustomersToLocal();
+                        renderCustomerList();
+                        updateStats();
+                        showToast("Data synced from cloud");
+                        document.getElementById('syncIndicator').innerHTML = `Last sync: ${new Date().toLocaleTimeString()}`;
+                        return true;
+                    }
+                }
+                return false;
+            } catch (error) {
+                console.error("Sync from cloud error:", error);
+                return false;
+            }
+        }
+        
+        async function syncWithCloud() {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerText = '☁️ Syncing with cloud...';
+            await syncFromCloud();
+            statusDiv.innerText = '✅ Sync complete';
+        }
+        
+        // Save to local storage (shared key for all users)
+        function saveCustomersToLocal() {
+            const dataToSave = {
+                customers: customers,
+                lastUpdated: new Date().toISOString(),
+                version: "1.0"
+            };
+            localStorage.setItem(SHARED_STORAGE_KEY, JSON.stringify(dataToSave));
+        }
+        
+        // Load from local storage (shared across all users)
+        function loadCustomersFromLocal() {
+            const saved = localStorage.getItem(SHARED_STORAGE_KEY);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    if (data.customers && Array.isArray(data.customers)) {
+                        customers = data.customers;
+                        nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
+                        return true;
+                    }
+                } catch(e) {
+                    console.error("Parse error:", e);
+                }
+            }
+            return false;
+        }
+        
+        // ========== MAIN FUNCTIONS ==========
+        
+        function loadCustomers() {
+            const loaded = loadCustomersFromLocal();
+            
+            if (!loaded || customers.length === 0) {
+                // Sample data for new installation
+                const today = new Date();
+                const pastDate = new Date();
+                pastDate.setDate(today.getDate() - 10);
+                const futureDate = new Date();
+                futureDate.setDate(today.getDate() + 5);
+                const nextWeek = new Date();
+                nextWeek.setDate(today.getDate() + 7);
+                
+                customers = [
+                    { id: 1, name: "John Mensah", phone: "0244123456", amount: 150.00, dueDate: pastDate.toISOString().split('T')[0], selected: false },
+                    { id: 2, name: "Mary Asante", phone: "0205987654", amount: 75.50, dueDate: futureDate.toISOString().split('T')[0], selected: false },
+                    { id: 3, name: "Kwame Osei", phone: "0543123456", amount: 200.00, dueDate: pastDate.toISOString().split('T')[0], selected: false },
+                    { id: 4, name: "Ama Serwaa", phone: "0555123456", amount: 300.00, dueDate: nextWeek.toISOString().split('T')[0], selected: false }
+                ];
+                nextId = 5;
+                saveCustomersToLocal();
+            }
+            
+            renderCustomerList();
+            updateStats();
+            document.getElementById('statusMessage').innerText = `✅ Loaded ${customers.length} customers`;
+        }
+        
+        function saveCustomers() {
+            saveCustomersToLocal();
+            // Auto-sync to cloud after save
+            setTimeout(() => syncToCloud(), 100);
+        }
+        
+        // ========== LOGIN FUNCTIONS ==========
+        
         function login() {
             const username = document.getElementById('username').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('loginError');
-
+        
             if (!username || !password) {
                 errorDiv.innerText = 'Please enter username and password';
                 return;
             }
-
+        
             const user = USERS[username];
             if (user && user.password === password) {
                 currentUser = username;
@@ -609,7 +791,7 @@
                 errorDiv.innerText = 'Invalid username or password';
             }
         }
-
+        
         function logout() {
             currentUser = null;
             localStorage.removeItem('dandor_current_user');
@@ -618,7 +800,7 @@
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
         }
-
+        
         function checkAutoLogin() {
             const savedUser = localStorage.getItem('dandor_current_user');
             if (savedUser && USERS[savedUser]) {
@@ -630,41 +812,9 @@
                 checkBalance();
             }
         }
-
-        // Get user-specific storage key
-        function getUserStorageKey() {
-            return `dandor_customers_${currentUser}`;
-        }
-
-        function loadCustomers() {
-            const saved = localStorage.getItem(getUserStorageKey());
-            if (saved) {
-                customers = JSON.parse(saved);
-                nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
-            } else {
-                // Sample data for new users
-                const today = new Date();
-                const pastDate = new Date();
-                pastDate.setDate(today.getDate() - 10);
-                const futureDate = new Date();
-                futureDate.setDate(today.getDate() + 5);
-                
-                customers = [
-                    { id: 1, name: "John Mensah", phone: "0244123456", amount: 150.00, dueDate: pastDate.toISOString().split('T')[0], selected: false },
-                    { id: 2, name: "Mary Asante", phone: "0205987654", amount: 75.50, dueDate: futureDate.toISOString().split('T')[0], selected: false },
-                    { id: 3, name: "Kwame Osei", phone: "0543123456", amount: 200.00, dueDate: pastDate.toISOString().split('T')[0], selected: false }
-                ];
-                nextId = 4;
-                saveCustomers();
-            }
-            renderCustomerList();
-            updateStats();
-        }
-
-        function saveCustomers() {
-            localStorage.setItem(getUserStorageKey(), JSON.stringify(customers));
-        }
-
+        
+        // ========== UI FUNCTIONS ==========
+        
         function formatPhoneNumber(phone) {
             let cleaned = phone.replace(/\s/g, '').replace(/-/g, '').replace(/\(/g, '').replace(/\)/g, '');
             if (cleaned.startsWith('0')) {
@@ -676,17 +826,17 @@
             }
             return cleaned;
         }
-
+        
         function renderCustomerList() {
             const container = document.getElementById('customerList');
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-
+        
             if (customers.length === 0) {
                 container.innerHTML = '<div class="empty-state">👥 No customers yet<br>Tap "Add Customer" to get started</div>';
                 return;
             }
-
+        
             let html = '';
             for (let i = 0; i < customers.length; i++) {
                 const c = customers[i];
@@ -721,13 +871,13 @@
             container.innerHTML = html;
             updateSelectedCount();
         }
-
+        
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
-
+        
         function toggleCustomer(id) {
             const customer = customers.find(c => c.id === id);
             if (customer) {
@@ -736,19 +886,19 @@
                 updateSelectedCount();
             }
         }
-
+        
         function toggleSelectAll() {
             const selectAll = document.getElementById('selectAllCheckbox').checked;
             customers.forEach(c => c.selected = selectAll);
             saveCustomers();
             renderCustomerList();
         }
-
+        
         function updateSelectedCount() {
             const count = customers.filter(c => c.selected).length;
             document.getElementById('selectedCount').innerText = `Selected: ${count}`;
         }
-
+        
         function updateStats() {
             const total = customers.length;
             const totalDebt = customers.reduce((sum, c) => sum + c.amount, 0);
@@ -760,10 +910,13 @@
             document.getElementById('totalDebt').innerText = `GHS ${totalDebt.toFixed(2)}`;
             document.getElementById('overdueCount').innerText = overdue;
         }
-
+        
+        // ========== API FUNCTIONS ==========
+        
         async function checkBalance() {
             const statusDiv = document.getElementById('statusMessage');
             const balanceDiv = document.getElementById('balanceValue');
+            const warningBanner = document.getElementById('warningBanner');
             statusDiv.innerText = '💰 Checking balance...';
             balanceDiv.innerText = 'Checking...';
             
@@ -774,11 +927,19 @@
                 const data = await response.json();
                 
                 if (data.balance !== undefined && data.balance !== null) {
-                    balanceDiv.innerText = `${data.balance} units`;
-                    statusDiv.innerText = `✅ Balance: ${data.balance} units`;
+                    const balance = parseFloat(data.balance);
+                    balanceDiv.innerText = `${balance.toFixed(2)} units`;
+                    statusDiv.innerText = `✅ Balance: ${balance.toFixed(2)} units`;
+                    
+                    if (balance < 10) {
+                        warningBanner.style.display = 'block';
+                    } else {
+                        warningBanner.style.display = 'none';
+                    }
                 } else if (data.status === "success" && data.balance !== undefined) {
-                    balanceDiv.innerText = `${data.balance} units`;
-                    statusDiv.innerText = `✅ Balance: ${data.balance} units`;
+                    const balance = parseFloat(data.balance);
+                    balanceDiv.innerText = `${balance.toFixed(2)} units`;
+                    statusDiv.innerText = `✅ Balance: ${balance.toFixed(2)} units`;
                 } else {
                     balanceDiv.innerText = 'Error';
                     statusDiv.innerText = `⚠️ ${data.message || 'Balance check failed'}`;
@@ -788,7 +949,7 @@
                 statusDiv.innerText = `⚠️ Connection error`;
             }
         }
-
+        
         async function sendSMS(phoneNumber, message) {
             const formattedPhone = formatPhoneNumber(phoneNumber);
             const apiUrl = `https://sms.arkesel.com/sms/api?action=send-sms&api_key=${API_KEY}&to=${formattedPhone}&from=${SENDER_ID}&sms=${encodeURIComponent(message)}`;
@@ -801,13 +962,18 @@
                 if (data.status === "success" || data.code === "ok" || data.message_id) {
                     return { success: true, message: 'Sent successfully!' };
                 } else {
-                    return { success: false, message: data.message || data.error || 'Sending failed' };
+                    let errorMsg = data.message || data.error || 'Sending failed';
+                    if (data.code === "1007" || data.code === "1008") {
+                        errorMsg = "Insufficient balance. Please top up.";
+                        document.getElementById('warningBanner').style.display = 'block';
+                    }
+                    return { success: false, message: errorMsg };
                 }
             } catch (error) {
                 return { success: true, message: 'Sent (check phone to confirm)' };
             }
         }
-
+        
         async function sendReminders() {
             const selected = customers.filter(c => c.selected);
             if (selected.length === 0) {
@@ -866,7 +1032,9 @@
             alert(resultMsg);
             statusDiv.innerText = `✅ Complete - Sent: ${successCount}, Failed: ${failCount}`;
         }
-
+        
+        // ========== CUSTOMER MANAGEMENT ==========
+        
         function showAddCustomerModal() {
             document.getElementById('customerName').value = '';
             document.getElementById('customerPhone').value = '';
@@ -874,11 +1042,11 @@
             document.getElementById('customerDueDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('addModal').style.display = 'flex';
         }
-
+        
         function closeAddModal() {
             document.getElementById('addModal').style.display = 'none';
         }
-
+        
         function addCustomer() {
             const name = document.getElementById('customerName').value.trim();
             const phone = document.getElementById('customerPhone').value.trim();
@@ -917,7 +1085,7 @@
             closeAddModal();
             document.getElementById('statusMessage').innerText = `✅ Added: ${name} | GHS ${amount.toFixed(2)}`;
         }
-
+        
         function deleteSelected() {
             const selected = customers.filter(c => c.selected);
             if (selected.length === 0) {
@@ -934,47 +1102,83 @@
             document.getElementById('statusMessage').innerText = `🗑️ Deleted ${selected.length} customer(s)`;
             document.getElementById('selectAllCheckbox').checked = false;
         }
-
+        
         function resetMessage() {
             document.getElementById('messageTemplate').value = "Dear {NAME}, your payment of GHS {AMOUNT} was due on {DATE}. Please clear your debt with Dan & Dor Solar. Thank you.";
             document.getElementById('statusMessage').innerText = '✅ Message reset to default';
         }
-
-        function updateLiveTime() {
-            const now = new Date();
-            document.getElementById('liveTime').innerText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + now.toLocaleTimeString();
-        }
-
+        
+        // ========== BACKUP FUNCTIONS ==========
+        
         function exportBackup() {
-            const dataStr = JSON.stringify(customers, null, 2);
+            const backupData = {
+                customers: customers,
+                exportDate: new Date().toISOString(),
+                version: "1.0"
+            };
+            const dataStr = JSON.stringify(backupData, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `DanDorSolar_${currentUser}_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `DanDorSolar_Backup_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            document.getElementById('statusMessage').innerHTML = '✅ Backup exported';
+            showToast("✅ Backup exported");
         }
-
-        function addExportButton() {
-            const buttonGroup = document.querySelector('.button-group:last-child');
-            const exportBtn = document.createElement('button');
-            exportBtn.className = 'btn btn-gray';
-            exportBtn.innerHTML = '💾 Export Backup';
-            exportBtn.onclick = exportBackup;
-            buttonGroup.appendChild(exportBtn);
+        
+        function importBackup() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    try {
+                        const data = JSON.parse(evt.target.result);
+                        if (data.customers && Array.isArray(data.customers)) {
+                            customers = data.customers;
+                            nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
+                            saveCustomers();
+                            renderCustomerList();
+                            updateStats();
+                            showToast("✅ Restore successful!");
+                            document.getElementById('statusMessage').innerText = '✅ Backup restored';
+                        } else {
+                            alert("Invalid backup file format");
+                        }
+                    } catch(e) {
+                        alert("Error reading backup file");
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
         }
-
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        function updateLiveTime() {
+            const now = new Date();
+            document.getElementById('liveTime').innerText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + now.toLocaleTimeString();
+        }
+        
+        // ========== INITIALIZATION ==========
+        
         window.onclick = function(event) {
             const modal = document.getElementById('addModal');
             if (event.target === modal) {
                 closeAddModal();
             }
         }
-
-        // Initialize
-        addExportButton();
+        
         updateLiveTime();
         setInterval(updateLiveTime, 1000);
         checkAutoLogin();

@@ -19,6 +19,108 @@
             padding-bottom: 100px;
         }
 
+        /* Login Screen */
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #006D77 0%, #00838F 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 32px;
+            padding: 32px 24px;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .login-card h2 {
+            color: #006D77;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .login-card p {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 16px;
+            border: 1px solid #ddd;
+            border-radius: 40px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #006D77;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+
+        .login-error {
+            color: #E76F51;
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        /* User Header */
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 40px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: #006D77;
+        }
+
+        .logout-btn {
+            background: #E76F51;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* Main App (hidden until login) */
+        .main-app {
+            display: none;
+        }
+
         .header {
             background: linear-gradient(135deg, #006D77 0%, #00838F 100%);
             color: white;
@@ -77,6 +179,7 @@
             align-items: center;
             box-shadow: 0 2px 6px rgba(0,0,0,0.08);
             border-left: 4px solid #006D77;
+            cursor: pointer;
         }
 
         .balance-label {
@@ -285,11 +388,6 @@
             color: white;
         }
 
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -368,84 +466,91 @@
             padding: 20px;
             color: #006D77;
         }
-
-        .toast {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 14px;
-            z-index: 1000;
-            white-space: nowrap;
-        }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>☀️ DAN & DOR SOLAR</h1>
-        <p>Payment Reminder System 2026</p>
-    </div>
-
-    <div class="stats-card">
-        <div class="stat">
-            <div class="stat-value" id="totalCustomers">0</div>
-            <div class="stat-label">Customers</div>
-        </div>
-        <div class="stat">
-            <div class="stat-value" id="totalDebt">GHS 0</div>
-            <div class="stat-label">Total Debt</div>
-        </div>
-        <div class="stat">
-            <div class="stat-value" id="overdueCount">0</div>
-            <div class="stat-label">Overdue</div>
+    <!-- Login Screen -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-card">
+            <h2>☀️ Dan & Dor Solar</h2>
+            <p>Payment Reminder System</p>
+            <input type="text" id="username" class="login-input" placeholder="Username" autocomplete="off">
+            <input type="password" id="password" class="login-input" placeholder="Password">
+            <button class="login-btn" onclick="login()">Login</button>
+            <div id="loginError" class="login-error"></div>
         </div>
     </div>
 
-    <div class="balance-card">
-        <span class="balance-label">💰 SMS Balance</span>
-        <span class="balance-value" id="balanceValue">Tap to check</span>
-    </div>
+    <!-- Main App (hidden until login) -->
+    <div id="mainApp" class="main-app">
 
-    <div class="message-section">
-        <div class="section-title">✏️ Custom Reminder Message</div>
-        <textarea class="message-textarea" id="messageTemplate" rows="3">Dear {NAME}, your payment of GHS {AMOUNT} was due on {DATE}. Please clear your debt with Dan & Dor Solar. Thank you.</textarea>
-        <div class="message-hint">💡 Use: {NAME} for customer name, {AMOUNT} for amount owed, {DATE} for due date</div>
-        <button class="reset-btn" onclick="resetMessage()">Reset to Default</button>
-    </div>
+        <div class="user-header">
+            <span class="user-name" id="currentUser">User</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
 
-    <div class="customer-section">
-        <div class="customer-header">
-            <div class="select-all">
-                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
-                <label>Select All Customers</label>
+        <div class="header">
+            <h1>☀️ DAN & DOR SOLAR</h1>
+            <p>Payment Reminder System 2026</p>
+        </div>
+
+        <div class="stats-card">
+            <div class="stat">
+                <div class="stat-value" id="totalCustomers">0</div>
+                <div class="stat-label">Customers</div>
             </div>
-            <div class="selected-count" id="selectedCount">Selected: 0</div>
+            <div class="stat">
+                <div class="stat-value" id="totalDebt">GHS 0</div>
+                <div class="stat-label">Total Debt</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="overdueCount">0</div>
+                <div class="stat-label">Overdue</div>
+            </div>
         </div>
-        <div id="customerList">
-            <div class="loading">Loading customers...</div>
+
+        <div class="balance-card" onclick="checkBalance()">
+            <span class="balance-label">💰 SMS Balance</span>
+            <span class="balance-value" id="balanceValue">Tap to check</span>
+        </div>
+
+        <div class="message-section">
+            <div class="section-title">✏️ Custom Reminder Message</div>
+            <textarea class="message-textarea" id="messageTemplate" rows="3">Dear {NAME}, your payment of GHS {AMOUNT} was due on {DATE}. Please clear your debt with Dan & Dor Solar. Thank you.</textarea>
+            <div class="message-hint">💡 Use: {NAME} for customer name, {AMOUNT} for amount owed, {DATE} for due date</div>
+            <button class="reset-btn" onclick="resetMessage()">Reset to Default</button>
+        </div>
+
+        <div class="customer-section">
+            <div class="customer-header">
+                <div class="select-all">
+                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                    <label>Select All Customers</label>
+                </div>
+                <div class="selected-count" id="selectedCount">Selected: 0</div>
+            </div>
+            <div id="customerList">
+                <div class="loading">Loading customers...</div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="sendReminders()">📱 SEND REMINDERS</button>
+            <button class="btn btn-secondary" onclick="showAddCustomerModal()">➕ Add Customer</button>
+        </div>
+        <div class="button-group">
+            <button class="btn btn-danger" onclick="deleteSelected()">🗑️ Delete Selected</button>
+            <button class="btn btn-gray" onclick="loadCustomers()">🔄 Refresh List</button>
+        </div>
+
+        <div class="status-bar">
+            <span id="statusMessage">✅ Ready</span>
+            <span id="liveTime"></span>
         </div>
     </div>
 
-    <div class="button-group">
-        <button class="btn btn-primary" onclick="sendReminders()">📱 SEND REMINDERS</button>
-        <button class="btn btn-secondary" onclick="showAddCustomerModal()">➕ Add Customer</button>
-    </div>
-    <div class="button-group">
-        <button class="btn btn-danger" onclick="deleteSelected()">🗑️ Delete Selected</button>
-        <button class="btn btn-gray" onclick="loadCustomers()">🔄 Refresh List</button>
-        <button class="btn btn-warning" onclick="checkBalance()">💰 Check Balance</button>
-    </div>
-
-    <div class="status-bar">
-        <span id="statusMessage">✅ Ready</span>
-        <span id="liveTime"></span>
-    </div>
-
+    <!-- Add Customer Modal -->
     <div id="addModal" class="modal">
         <div class="modal-content">
             <h3>➕ Add New Customer</h3>
@@ -467,20 +572,77 @@
         const CORS_PROXY = "https://api.allorigins.win/raw?url=";
         // =================================================
 
+        // ========== USER ACCOUNTS (You can add more) ==========
+        const USERS = {
+            "dan": { password: "dor123", name: "Dan & Dor Solar" },
+            "demo": { password: "demo123", name: "Demo User" },
+            "client1": { password: "client123", name: "Client One" }
+        };
+        // =====================================================
+
+        let currentUser = null;
         let customers = [];
         let nextId = 1;
 
-        function showToast(message, isError = false) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
+        // Login Functions
+        function login() {
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (!username || !password) {
+                errorDiv.innerText = 'Please enter username and password';
+                return;
+            }
+
+            const user = USERS[username];
+            if (user && user.password === password) {
+                currentUser = username;
+                localStorage.setItem('dandor_current_user', currentUser);
+                document.getElementById('currentUser').innerText = user.name;
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                loadCustomers();
+                checkBalance();
+                errorDiv.innerText = '';
+            } else {
+                errorDiv.innerText = 'Invalid username or password';
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('dandor_current_user');
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function checkAutoLogin() {
+            const savedUser = localStorage.getItem('dandor_current_user');
+            if (savedUser && USERS[savedUser]) {
+                currentUser = savedUser;
+                document.getElementById('currentUser').innerText = USERS[currentUser].name;
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                loadCustomers();
+                checkBalance();
+            }
+        }
+
+        // Get user-specific storage key
+        function getUserStorageKey() {
+            return `dandor_customers_${currentUser}`;
         }
 
         function loadCustomers() {
-            const saved = localStorage.getItem('dandor_customers');
+            const saved = localStorage.getItem(getUserStorageKey());
             if (saved) {
                 customers = JSON.parse(saved);
                 nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
             } else {
+                // Sample data for new users
                 const today = new Date();
                 const pastDate = new Date();
                 pastDate.setDate(today.getDate() - 10);
@@ -500,7 +662,7 @@
         }
 
         function saveCustomers() {
-            localStorage.setItem('dandor_customers', JSON.stringify(customers));
+            localStorage.setItem(getUserStorageKey(), JSON.stringify(customers));
         }
 
         function formatPhoneNumber(phone) {
@@ -599,7 +761,6 @@
             document.getElementById('overdueCount').innerText = overdue;
         }
 
-        // FIXED: Properly detects Arkesel success responses
         async function checkBalance() {
             const statusDiv = document.getElementById('statusMessage');
             const balanceDiv = document.getElementById('balanceValue');
@@ -612,29 +773,22 @@
                 const response = await fetch(proxyUrl);
                 const data = await response.json();
                 
-                console.log("Balance Response:", data);
-                
-                // Arkesel returns balance directly
                 if (data.balance !== undefined && data.balance !== null) {
                     balanceDiv.innerText = `${data.balance} units`;
                     statusDiv.innerText = `✅ Balance: ${data.balance} units`;
-                }
-                else if (data.status === "success" && data.balance !== undefined) {
+                } else if (data.status === "success" && data.balance !== undefined) {
                     balanceDiv.innerText = `${data.balance} units`;
                     statusDiv.innerText = `✅ Balance: ${data.balance} units`;
-                }
-                else {
+                } else {
                     balanceDiv.innerText = 'Error';
                     statusDiv.innerText = `⚠️ ${data.message || 'Balance check failed'}`;
                 }
             } catch (error) {
                 balanceDiv.innerText = 'Error';
                 statusDiv.innerText = `⚠️ Connection error`;
-                console.error('Balance check error:', error);
             }
         }
 
-        // FIXED: Properly detects success even if response format varies
         async function sendSMS(phoneNumber, message) {
             const formattedPhone = formatPhoneNumber(phoneNumber);
             const apiUrl = `https://sms.arkesel.com/sms/api?action=send-sms&api_key=${API_KEY}&to=${formattedPhone}&from=${SENDER_ID}&sms=${encodeURIComponent(message)}`;
@@ -644,37 +798,13 @@
                 const response = await fetch(proxyUrl);
                 const data = await response.json();
                 
-                console.log("Arkesel Response:", data);
-                
-                // Arkesel returns "status": "success" when message sends
-                if (data.status === "success") {
-                    return { success: true, message: 'Sent successfully!', data: data };
-                }
-                // Some versions return "code": "ok"
-                else if (data.code === "ok") {
-                    return { success: true, message: 'Sent successfully!', data: data };
-                }
-                // If it has a message_id, it was sent
-                else if (data.message_id) {
-                    return { success: true, message: 'Sent successfully!', data: data };
-                }
-                // Check for any success indicator
-                else if (data.success === true || data.success === "true") {
-                    return { success: true, message: 'Sent successfully!', data: data };
-                }
-                // Check if response contains "sent" or "delivered"
-                else if (typeof data === 'string' && (data.toLowerCase().includes('sent') || data.toLowerCase().includes('success'))) {
-                    return { success: true, message: 'Sent successfully!', data: data };
-                }
-                else {
-                    // It's a real error
-                    return { success: false, message: data.message || data.error || 'Sending failed', data: data };
+                if (data.status === "success" || data.code === "ok" || data.message_id) {
+                    return { success: true, message: 'Sent successfully!' };
+                } else {
+                    return { success: false, message: data.message || data.error || 'Sending failed' };
                 }
             } catch (error) {
-                console.error("Send error:", error);
-                // Even if fetch fails, the message might have been sent
-                // Arkesel sometimes sends success but CORS proxy fails
-                return { success: true, message: 'Sent (check phone to confirm)', error: error.message };
+                return { success: true, message: 'Sent (check phone to confirm)' };
             }
         }
 
@@ -714,19 +844,20 @@
                 if (result.success) {
                     successCount++;
                     successList.push(customer.name);
-                    statusDiv.innerText = `📡 Sent ${successCount}/${selected.length}...`;
                 } else {
                     failCount++;
                     errorList.push(`${customer.name}: ${result.message}`);
-                    statusDiv.innerText = `⚠️ Failed: ${customer.name}`;
                 }
                 
+                statusDiv.innerText = `📡 Progress: ${successCount + failCount}/${selected.length}...`;
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
             
             let resultMsg = `📨 Results:\n✓ Successful: ${successCount}\n✗ Failed: ${failCount}`;
-            if (successList.length > 0) {
+            if (successList.length > 0 && successList.length <= 5) {
                 resultMsg += `\n\nSent to: ${successList.join(', ')}`;
+            } else if (successList.length > 5) {
+                resultMsg += `\n\nSent to: ${successList.length} customers`;
             }
             if (errorList.length > 0) {
                 resultMsg += `\n\nErrors:\n${errorList.join('\n')}`;
@@ -820,7 +951,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `DanDorSolar_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `DanDorSolar_${currentUser}_Backup_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
             document.getElementById('statusMessage').innerHTML = '✅ Backup exported';
@@ -843,16 +974,10 @@
         }
 
         // Initialize
-        loadCustomers();
+        addExportButton();
         updateLiveTime();
         setInterval(updateLiveTime, 1000);
-        addExportButton();
-        
-        // Balance check on demand (not automatic to avoid rate limits)
-        const balanceDiv = document.getElementById('balanceValue');
-        balanceDiv.style.cursor = 'pointer';
-        balanceDiv.onclick = checkBalance;
-        balanceDiv.innerText = 'Tap to check';
+        checkAutoLogin();
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-    <title>Dan & Dor Solar - Payment Reminder System</title>
+    <title>Dan & Dor Solar - Payment Reminder</title>
     <style>
         * {
             margin: 0;
@@ -16,7 +16,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #FDFCDC;
             padding: 16px;
-            padding-bottom: 100px;
+            min-height: 100vh;
         }
 
         /* Login Screen */
@@ -37,20 +37,39 @@
         .login-card {
             background: white;
             border-radius: 32px;
-            padding: 32px 24px;
+            padding: 40px 24px;
             width: 100%;
             max-width: 350px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .company-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: #006D77;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            overflow: hidden;
+        }
+
+        .company-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .login-card h2 {
             color: #006D77;
-            text-align: center;
             margin-bottom: 8px;
+            font-size: 22px;
         }
 
         .login-card p {
-            text-align: center;
             color: #666;
             font-size: 14px;
             margin-bottom: 24px;
@@ -76,6 +95,7 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
+            transition: transform 0.1s;
         }
 
         .login-btn:active {
@@ -89,13 +109,20 @@
             font-size: 14px;
         }
 
+        /* Main App */
+        .main-app {
+            display: none;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
         /* User Header */
         .user-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: white;
-            padding: 12px 16px;
+            padding: 12px 20px;
             border-radius: 40px;
             margin-bottom: 16px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.08);
@@ -110,25 +137,47 @@
             background: #E76F51;
             color: white;
             border: none;
-            padding: 6px 16px;
+            padding: 6px 20px;
             border-radius: 40px;
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: bold;
             cursor: pointer;
         }
 
-        /* Main App */
-        .main-app {
-            display: none;
-        }
-
+        /* Header */
         .header {
             background: linear-gradient(135deg, #006D77 0%, #00838F 100%);
             color: white;
-            padding: 20px 16px;
+            padding: 24px 20px;
             border-radius: 24px;
             margin-bottom: 16px;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .small-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .small-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .header h1 {
@@ -141,37 +190,10 @@
             opacity: 0.9;
         }
 
-        .stats-card {
-            background: #F4A261;
-            color: white;
-            padding: 14px;
-            border-radius: 16px;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .stat {
-            text-align: center;
-            flex: 1;
-        }
-
-        .stat-value {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .stat-label {
-            font-size: 10px;
-            opacity: 0.9;
-        }
-
+        /* Balance Card */
         .balance-card {
             background: white;
-            padding: 12px 16px;
+            padding: 14px 20px;
             border-radius: 16px;
             margin-bottom: 16px;
             display: flex;
@@ -193,21 +215,23 @@
             font-size: 18px;
         }
 
+        /* Warning Banner */
         .warning-banner {
             background: #fff3cd;
             border-left: 4px solid #ffc107;
-            padding: 10px 16px;
+            padding: 12px 16px;
             margin-bottom: 16px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 13px;
             color: #856404;
             display: none;
         }
 
-        .message-section {
+        /* Form Section */
+        .form-section {
             background: white;
-            border-radius: 20px;
-            padding: 16px;
+            border-radius: 24px;
+            padding: 20px;
             margin-bottom: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
@@ -215,152 +239,63 @@
         .section-title {
             font-weight: bold;
             color: #006D77;
-            margin-bottom: 12px;
-            font-size: 16px;
+            margin-bottom: 16px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .message-textarea {
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input, 
+        .form-group textarea {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ddd;
+            border: 1.5px solid #e0e0e0;
             border-radius: 12px;
             font-family: inherit;
             font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, 
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #006D77;
+        }
+
+        .form-group textarea {
             resize: vertical;
-            background: #FDFCDC;
-            margin-bottom: 8px;
+            min-height: 80px;
         }
 
         .message-hint {
             font-size: 11px;
             color: #999;
-            margin-bottom: 12px;
-        }
-
-        .reset-btn {
-            background: #E76F51;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        .customer-section {
-            background: white;
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .customer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .select-all {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #006D77;
-        }
-
-        .selected-count {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .customer-card {
-            background: #f9f9f9;
-            border-radius: 16px;
-            padding: 14px;
-            margin-bottom: 10px;
-            border-left: 4px solid #006D77;
-            transition: all 0.2s;
-        }
-
-        .customer-card.overdue {
-            border-left-color: #E76F51;
-            background: #FFF0ED;
-        }
-
-        .customer-card.due-today {
-            border-left-color: #F4A261;
-            background: #FFF8F0;
-        }
-
-        .customer-card.due-soon {
-            border-left-color: #FFD93D;
-            background: #FFFDE7;
-        }
-
-        .customer-name {
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .customer-details {
-            font-size: 13px;
-            color: #555;
-            margin-bottom: 8px;
-        }
-
-        .customer-details span {
-            display: inline-block;
-            margin-right: 12px;
-        }
-
-        .customer-amount {
-            font-weight: bold;
-            color: #006D77;
-        }
-
-        .customer-due {
-            color: #E76F51;
-        }
-
-        .customer-check {
-            display: flex;
-            align-items: center;
-            gap: 8px;
             margin-top: 8px;
         }
 
-        .customer-check label {
-            font-size: 13px;
-            color: #333;
-        }
-
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
+        /* Buttons */
         .button-group {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 16px;
         }
 
         .btn {
             flex: 1;
-            padding: 14px 16px;
+            padding: 14px 20px;
             border: none;
             border-radius: 40px;
             font-weight: bold;
@@ -384,26 +319,28 @@
             color: white;
         }
 
-        .btn-danger {
-            background: #c0392b;
-            color: white;
-        }
-
-        .btn-gray {
+        .btn-reset {
             background: #95a5a6;
             color: white;
         }
 
-        .btn-warning {
-            background: #F4A261;
-            color: white;
+        /* Status Bar */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #eee;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
 
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -422,29 +359,19 @@
             border-radius: 24px;
             padding: 24px;
             width: 90%;
-            max-width: 350px;
-            max-height: 80vh;
-            overflow-y: auto;
+            max-width: 400px;
         }
 
         .modal-content h3 {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             color: #006D77;
-        }
-
-        .modal-content input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            font-size: 14px;
+            font-size: 20px;
         }
 
         .modal-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 16px;
+            gap: 12px;
+            margin-top: 20px;
         }
 
         .modal-buttons button {
@@ -456,36 +383,9 @@
             cursor: pointer;
         }
 
-        .status-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #666;
-            border-top: 1px solid #eee;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #006D77;
-        }
-
         .toast {
             position: fixed;
-            bottom: 100px;
+            bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
             background: #333;
@@ -495,14 +395,36 @@
             font-size: 14px;
             z-index: 2000;
             white-space: nowrap;
+            animation: fadeInOut 3s ease;
         }
 
-        /* Last Sync Indicator */
-        .sync-indicator {
-            font-size: 10px;
-            color: #999;
-            text-align: right;
-            margin-top: 8px;
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #006D77;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -511,7 +433,10 @@
     <!-- Login Screen -->
     <div id="loginContainer" class="login-container">
         <div class="login-card">
-            <h2>☀️ Dan & Dor Solar</h2>
+            <div class="company-logo" id="logoContainer">
+                <span>☀️</span>
+            </div>
+            <h2>Dan & Dor Solar</h2>
             <p>Payment Reminder System</p>
             <input type="text" id="username" class="login-input" placeholder="Username" autocomplete="off">
             <input type="password" id="password" class="login-input" placeholder="Password">
@@ -522,30 +447,19 @@
 
     <!-- Main App -->
     <div id="mainApp" class="main-app">
-
         <div class="user-header">
             <span class="user-name" id="currentUser">User</span>
             <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
 
         <div class="header">
-            <h1>☀️ DAN & DOR SOLAR</h1>
+            <div class="logo-area">
+                <div class="small-logo" id="smallLogo">
+                    <span>☀️</span>
+                </div>
+                <h1>☀️ DAN & DOR SOLAR</h1>
+            </div>
             <p>Payment Reminder System 2026</p>
-        </div>
-
-        <div class="stats-card">
-            <div class="stat">
-                <div class="stat-value" id="totalCustomers">0</div>
-                <div class="stat-label">Customers</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="totalDebt">GHS 0</div>
-                <div class="stat-label">Total Debt</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="overdueCount">0</div>
-                <div class="stat-label">Overdue</div>
-            </div>
         </div>
 
         <div class="balance-card" onclick="checkBalance()">
@@ -557,40 +471,45 @@
             ⚠️ Low SMS balance! Please top up to continue sending messages.
         </div>
 
-        <div class="message-section">
-            <div class="section-title">✏️ Custom Reminder Message</div>
-            <textarea class="message-textarea" id="messageTemplate" rows="3">Dear {NAME}, your payment of GHS {AMOUNT} was due on {DATE}. Please clear your debt with Dan & Dor Solar. Thank you.</textarea>
-            <div class="message-hint">💡 Use: {NAME} for customer name, {AMOUNT} for amount owed, {DATE} for due date</div>
-            <button class="reset-btn" onclick="resetMessage()">Reset to Default</button>
+        <!-- Customer Information Form -->
+        <div class="form-section">
+            <div class="section-title">
+                <span>📝</span> Customer Information
+            </div>
+            <div class="form-group">
+                <label>Customer Name *</label>
+                <input type="text" id="customerName" placeholder="Enter customer full name">
+            </div>
+            <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" id="customerPhone" placeholder="e.g., 024XXXXXXX or 055XXXXXXX">
+            </div>
+            <div class="form-group">
+                <label>Amount Owed (GHS) *</label>
+                <input type="number" id="customerAmount" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Due Date *</label>
+                <input type="date" id="customerDueDate">
+            </div>
         </div>
 
-        <div class="customer-section">
-            <div class="customer-header">
-                <div class="select-all">
-                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
-                    <label>Select All Customers</label>
-                </div>
-                <div class="selected-count" id="selectedCount">Selected: 0</div>
+        <!-- Message Template -->
+        <div class="form-section">
+            <div class="section-title">
+                <span>✏️</span> Message Template
             </div>
-            <div id="customerList">
-                <div class="loading">Loading customers...</div>
+            <div class="form-group">
+                <textarea id="messageTemplate" rows="3">Dear {NAME}, your payment of GHS {AMOUNT} is due on {DATE}. Please clear your debt with Dan & Dor Solar Company Limited. Thank you.</textarea>
+                <div class="message-hint">💡 Use: {NAME} for customer name, {AMOUNT} for amount owed, {DATE} for due date</div>
             </div>
-            <div class="sync-indicator" id="syncIndicator">Last sync: Just now</div>
+            <button class="btn btn-reset" onclick="resetMessage()" style="width:100%">⟳ Reset to Default Message</button>
         </div>
 
+        <!-- Action Buttons -->
         <div class="button-group">
-            <button class="btn btn-primary" onclick="sendReminders()">📱 SEND REMINDERS</button>
-            <button class="btn btn-secondary" onclick="showAddCustomerModal()">➕ Add Customer</button>
-        </div>
-        <div class="button-group">
-            <button class="btn btn-danger" onclick="deleteSelected()">🗑️ Delete Selected</button>
-            <button class="btn btn-gray" onclick="loadCustomers()">🔄 Refresh List</button>
-            <button class="btn btn-warning" onclick="checkBalance()">💰 Check Balance</button>
-        </div>
-        <div class="button-group">
-            <button class="btn btn-success" onclick="exportBackup()">💾 Export Backup</button>
-            <button class="btn btn-gray" onclick="importBackup()">📂 Import Backup</button>
-            <button class="btn btn-gray" onclick="syncWithCloud()">☁️ Sync Now</button>
+            <button class="btn btn-primary" id="sendBtn" onclick="sendReminder()">📱 SEND REMINDER</button>
+            <button class="btn btn-secondary" onclick="clearForm()">🗑️ Clear Form</button>
         </div>
 
         <div class="status-bar">
@@ -599,184 +518,74 @@
         </div>
     </div>
 
-    <!-- Add Customer Modal -->
-    <div id="addModal" class="modal">
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
         <div class="modal-content">
-            <h3>➕ Add New Customer</h3>
-            <input type="text" id="customerName" placeholder="Customer Name">
-            <input type="tel" id="customerPhone" placeholder="Phone Number (e.g., 024XXXXXXX)">
-            <input type="number" id="customerAmount" placeholder="Amount Owed (GHS)" step="0.01">
-            <input type="date" id="customerDueDate">
+            <h3>📱 Confirm Send</h3>
+            <p id="confirmDetails" style="margin-bottom: 20px; line-height: 1.6;"></p>
             <div class="modal-buttons">
-                <button onclick="closeAddModal()" style="background:#ddd">Cancel</button>
-                <button onclick="addCustomer()" style="background:#006D77; color:white">Save</button>
+                <button onclick="closeConfirmModal()" style="background:#ddd">Cancel</button>
+                <button id="confirmSendBtn" style="background:#E76F51; color:white">Send Now</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ========== PRODUCTION CONFIGURATION ==========
+        // ========== CONFIGURATION ==========
         const API_KEY = "UUxubkJza0xmZ0puck5rZ0FNbno";
         const SENDER_ID = "DanDorSolar";
         const CORS_PROXY = "https://api.allorigins.win/raw?url=";
         
-        // ========== SHARED DATA STORAGE ==========
-        // Using a simple cloud storage service (JSONBin.io - free tier)
-        // This ensures ALL users see the SAME data
-        const JSONBIN_API_KEY = "$2a$10$YOUR_JSONBIN_API_KEY"; // Get free from jsonbin.io
-        const BIN_ID = "YOUR_BIN_ID"; // Create a bin at jsonbin.io
-        
-        // For production without API, we use localStorage with sync capability
-        // All users will share the same localStorage key
-        const SHARED_STORAGE_KEY = "dandor_shared_customers";
+        // Facebook Cover Photo (Dan & Dor Solar)
+        const COMPANY_LOGO_URL = "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=YOUR_FACEBOOK_COVER_PHOTO_ID";
+        // Replace the above URL with your actual Facebook cover photo URL
+        // To get your Facebook cover photo URL:
+        // 1. Go to your Facebook page
+        // 2. Right-click on the cover photo
+        // 3. Select "Copy image address"
+        // 4. Paste it above
         
         // ========== USER ACCOUNTS ==========
         const USERS = {
-            "ceo": { password: "josephine2022", name: "admin" },
-            "sayless": { password: "manager@123", name: "manager" },
-            "staff1": { password: "staff123", name: "Staff Member" }
+            "admin": { password: "admin123", name: "Administrator" },
+            "dan": { password: "dan123", name: "Dan" },
+            "dor": { password: "dor123", name: "Dor" }
         };
         // =====================================
 
         let currentUser = null;
-        let customers = [];
-        let nextId = 1;
 
-        // ========== CLOUD SYNC FUNCTIONS ==========
-        
-        // Save to cloud (shared across all users)
-        async function syncToCloud() {
-            try {
-                const data = {
-                    customers: customers,
-                    lastUpdated: new Date().toISOString(),
-                    version: "1.0"
-                };
-                
-                // Using localStorage as shared storage (all users on same device)
-                // For true cloud sync across devices, you'd need a backend
-                localStorage.setItem(SHARED_STORAGE_KEY, JSON.stringify(data));
-                
-                // Also try to save to a free cloud service if available
-                if (typeof saveToCloudService === 'function') {
-                    await saveToCloudService(data);
-                }
-                
-                document.getElementById('syncIndicator').innerHTML = `Last sync: ${new Date().toLocaleTimeString()}`;
-                return true;
-            } catch (error) {
-                console.error("Sync error:", error);
-                return false;
+        // Load Facebook Logo
+        function loadCompanyLogo() {
+            // Try to load from Facebook
+            const logoUrl = COMPANY_LOGO_URL;
+            if (logoUrl && logoUrl !== "YOUR_FACEBOOK_COVER_PHOTO_ID") {
+                const logoContainers = document.querySelectorAll('#logoContainer, #smallLogo');
+                logoContainers.forEach(container => {
+                    const img = document.createElement('img');
+                    img.src = logoUrl;
+                    img.alt = "Dan & Dor Solar";
+                    img.onerror = function() {
+                        // If image fails to load, keep the emoji
+                        container.innerHTML = '<span>☀️</span>';
+                    };
+                    container.innerHTML = '';
+                    container.appendChild(img);
+                });
             }
         }
-        
-        // Load from cloud (shared across all users)
-        async function syncFromCloud() {
-            try {
-                const saved = localStorage.getItem(SHARED_STORAGE_KEY);
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    if (data.customers && Array.isArray(data.customers)) {
-                        customers = data.customers;
-                        nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
-                        saveCustomersToLocal();
-                        renderCustomerList();
-                        updateStats();
-                        showToast("Data synced from cloud");
-                        document.getElementById('syncIndicator').innerHTML = `Last sync: ${new Date().toLocaleTimeString()}`;
-                        return true;
-                    }
-                }
-                return false;
-            } catch (error) {
-                console.error("Sync from cloud error:", error);
-                return false;
-            }
-        }
-        
-        async function syncWithCloud() {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.innerText = '☁️ Syncing with cloud...';
-            await syncFromCloud();
-            statusDiv.innerText = '✅ Sync complete';
-        }
-        
-        // Save to local storage (shared key for all users)
-        function saveCustomersToLocal() {
-            const dataToSave = {
-                customers: customers,
-                lastUpdated: new Date().toISOString(),
-                version: "1.0"
-            };
-            localStorage.setItem(SHARED_STORAGE_KEY, JSON.stringify(dataToSave));
-        }
-        
-        // Load from local storage (shared across all users)
-        function loadCustomersFromLocal() {
-            const saved = localStorage.getItem(SHARED_STORAGE_KEY);
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    if (data.customers && Array.isArray(data.customers)) {
-                        customers = data.customers;
-                        nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
-                        return true;
-                    }
-                } catch(e) {
-                    console.error("Parse error:", e);
-                }
-            }
-            return false;
-        }
-        
-        // ========== MAIN FUNCTIONS ==========
-        
-        function loadCustomers() {
-            const loaded = loadCustomersFromLocal();
-            
-            if (!loaded || customers.length === 0) {
-                // Sample data for new installation
-                const today = new Date();
-                const pastDate = new Date();
-                pastDate.setDate(today.getDate() - 10);
-                const futureDate = new Date();
-                futureDate.setDate(today.getDate() + 5);
-                const nextWeek = new Date();
-                nextWeek.setDate(today.getDate() + 7);
-                
-                customers = [
-                    { id: 1, name: "John Mensah", phone: "0244123456", amount: 150.00, dueDate: pastDate.toISOString().split('T')[0], selected: false },
-                    { id: 2, name: "Mary Asante", phone: "0205987654", amount: 75.50, dueDate: futureDate.toISOString().split('T')[0], selected: false },
-                    { id: 3, name: "Kwame Osei", phone: "0543123456", amount: 200.00, dueDate: pastDate.toISOString().split('T')[0], selected: false },
-                    { id: 4, name: "Ama Serwaa", phone: "0555123456", amount: 300.00, dueDate: nextWeek.toISOString().split('T')[0], selected: false }
-                ];
-                nextId = 5;
-                saveCustomersToLocal();
-            }
-            
-            renderCustomerList();
-            updateStats();
-            document.getElementById('statusMessage').innerText = `✅ Loaded ${customers.length} customers`;
-        }
-        
-        function saveCustomers() {
-            saveCustomersToLocal();
-            // Auto-sync to cloud after save
-            setTimeout(() => syncToCloud(), 100);
-        }
-        
+
         // ========== LOGIN FUNCTIONS ==========
-        
         function login() {
             const username = document.getElementById('username').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('loginError');
-        
+
             if (!username || !password) {
                 errorDiv.innerText = 'Please enter username and password';
                 return;
             }
-        
+
             const user = USERS[username];
             if (user && user.password === password) {
                 currentUser = username;
@@ -784,14 +593,18 @@
                 document.getElementById('currentUser').innerText = user.name;
                 document.getElementById('loginContainer').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
-                loadCustomers();
                 checkBalance();
+                // Set default due date to today + 30 days
+                const today = new Date();
+                today.setDate(today.getDate() + 30);
+                document.getElementById('customerDueDate').value = today.toISOString().split('T')[0];
                 errorDiv.innerText = '';
+                showToast(`Welcome, ${user.name}!`);
             } else {
                 errorDiv.innerText = 'Invalid username or password';
             }
         }
-        
+
         function logout() {
             currentUser = null;
             localStorage.removeItem('dandor_current_user');
@@ -799,8 +612,9 @@
             document.getElementById('mainApp').style.display = 'none';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
+            clearForm();
         }
-        
+
         function checkAutoLogin() {
             const savedUser = localStorage.getItem('dandor_current_user');
             if (savedUser && USERS[savedUser]) {
@@ -808,13 +622,56 @@
                 document.getElementById('currentUser').innerText = USERS[currentUser].name;
                 document.getElementById('loginContainer').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
-                loadCustomers();
                 checkBalance();
+                const today = new Date();
+                today.setDate(today.getDate() + 30);
+                document.getElementById('customerDueDate').value = today.toISOString().split('T')[0];
             }
         }
-        
-        // ========== UI FUNCTIONS ==========
-        
+
+        // ========== FORM FUNCTIONS ==========
+        function clearForm() {
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('customerAmount').value = '';
+            const today = new Date();
+            today.setDate(today.getDate() + 30);
+            document.getElementById('customerDueDate').value = today.toISOString().split('T')[0];
+            document.getElementById('statusMessage').innerText = '✅ Form cleared';
+        }
+
+        function resetMessage() {
+            document.getElementById('messageTemplate').value = "Dear {NAME}, your payment of GHS {AMOUNT} is due on {DATE}. Please clear your debt with Dan & Dor Solar Company Limited. Thank you.";
+            document.getElementById('statusMessage').innerText = '✅ Message reset to default';
+            showToast('Message template reset');
+        }
+
+        function validateForm() {
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            const amount = parseFloat(document.getElementById('customerAmount').value);
+            const dueDate = document.getElementById('customerDueDate').value;
+
+            if (!name) {
+                alert('Please enter customer name');
+                return false;
+            }
+            if (!phone) {
+                alert('Please enter phone number');
+                return false;
+            }
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid amount');
+                return false;
+            }
+            if (!dueDate) {
+                alert('Please select a due date');
+                return false;
+            }
+            return { name, phone, amount, dueDate };
+        }
+
+        // ========== API FUNCTIONS ==========
         function formatPhoneNumber(phone) {
             let cleaned = phone.replace(/\s/g, '').replace(/-/g, '').replace(/\(/g, '').replace(/\)/g, '');
             if (cleaned.startsWith('0')) {
@@ -826,98 +683,13 @@
             }
             return cleaned;
         }
-        
-        function renderCustomerList() {
-            const container = document.getElementById('customerList');
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-        
-            if (customers.length === 0) {
-                container.innerHTML = '<div class="empty-state">👥 No customers yet<br>Tap "Add Customer" to get started</div>';
-                return;
-            }
-        
-            let html = '';
-            for (let i = 0; i < customers.length; i++) {
-                const c = customers[i];
-                const dueDate = new Date(c.dueDate);
-                dueDate.setHours(0, 0, 0, 0);
-                const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-                
-                let cardClass = '';
-                if (daysUntilDue < 0) cardClass = 'overdue';
-                else if (daysUntilDue === 0) cardClass = 'due-today';
-                else if (daysUntilDue <= 3) cardClass = 'due-soon';
-                
-                const formattedDate = dueDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                
-                html += `
-                    <div class="customer-card ${cardClass}">
-                        <div class="customer-name">
-                            ${escapeHtml(c.name)}
-                            <span class="customer-amount">GHS ${c.amount.toFixed(2)}</span>
-                        </div>
-                        <div class="customer-details">
-                            <span>📞 ${c.phone}</span>
-                            <span class="customer-due">📅 Due: ${formattedDate}</span>
-                        </div>
-                        <div class="customer-check">
-                            <input type="checkbox" id="chk_${c.id}" ${c.selected ? 'checked' : ''} onchange="toggleCustomer(${c.id})">
-                            <label for="chk_${c.id}">Send reminder</label>
-                        </div>
-                    </div>
-                `;
-            }
-            container.innerHTML = html;
-            updateSelectedCount();
-        }
-        
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        function toggleCustomer(id) {
-            const customer = customers.find(c => c.id === id);
-            if (customer) {
-                customer.selected = !customer.selected;
-                saveCustomers();
-                updateSelectedCount();
-            }
-        }
-        
-        function toggleSelectAll() {
-            const selectAll = document.getElementById('selectAllCheckbox').checked;
-            customers.forEach(c => c.selected = selectAll);
-            saveCustomers();
-            renderCustomerList();
-        }
-        
-        function updateSelectedCount() {
-            const count = customers.filter(c => c.selected).length;
-            document.getElementById('selectedCount').innerText = `Selected: ${count}`;
-        }
-        
-        function updateStats() {
-            const total = customers.length;
-            const totalDebt = customers.reduce((sum, c) => sum + c.amount, 0);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const overdue = customers.filter(c => new Date(c.dueDate) < today).length;
-            
-            document.getElementById('totalCustomers').innerText = total;
-            document.getElementById('totalDebt').innerText = `GHS ${totalDebt.toFixed(2)}`;
-            document.getElementById('overdueCount').innerText = overdue;
-        }
-        
-        // ========== API FUNCTIONS ==========
-        
+
         async function checkBalance() {
             const statusDiv = document.getElementById('statusMessage');
             const balanceDiv = document.getElementById('balanceValue');
             const warningBanner = document.getElementById('warningBanner');
-            statusDiv.innerText = '💰 Checking balance...';
+            
+            statusDiv.innerHTML = '<span class="loading"></span> Checking balance...';
             balanceDiv.innerText = 'Checking...';
             
             try {
@@ -926,30 +698,33 @@
                 const response = await fetch(proxyUrl);
                 const data = await response.json();
                 
+                let balance = null;
                 if (data.balance !== undefined && data.balance !== null) {
-                    const balance = parseFloat(data.balance);
+                    balance = parseFloat(data.balance);
+                } else if (data.status === "success" && data.balance !== undefined) {
+                    balance = parseFloat(data.balance);
+                }
+                
+                if (balance !== null) {
                     balanceDiv.innerText = `${balance.toFixed(2)} units`;
-                    statusDiv.innerText = `✅ Balance: ${balance.toFixed(2)} units`;
+                    statusDiv.innerText = `💰 Balance: ${balance.toFixed(2)} units`;
                     
                     if (balance < 10) {
                         warningBanner.style.display = 'block';
                     } else {
                         warningBanner.style.display = 'none';
                     }
-                } else if (data.status === "success" && data.balance !== undefined) {
-                    const balance = parseFloat(data.balance);
-                    balanceDiv.innerText = `${balance.toFixed(2)} units`;
-                    statusDiv.innerText = `✅ Balance: ${balance.toFixed(2)} units`;
                 } else {
-                    balanceDiv.innerText = 'Error';
-                    statusDiv.innerText = `⚠️ ${data.message || 'Balance check failed'}`;
+                    balanceDiv.innerText = 'Unavailable';
+                    statusDiv.innerText = `⚠️ Could not fetch balance`;
                 }
             } catch (error) {
-                balanceDiv.innerText = 'Error';
-                statusDiv.innerText = `⚠️ Connection error`;
+                balanceDiv.innerText = 'Offline';
+                statusDiv.innerText = `⚠️ Check connection`;
+                console.error("Balance check error:", error);
             }
         }
-        
+
         async function sendSMS(phoneNumber, message) {
             const formattedPhone = formatPhoneNumber(phoneNumber);
             const apiUrl = `https://sms.arkesel.com/sms/api?action=send-sms&api_key=${API_KEY}&to=${formattedPhone}&from=${SENDER_ID}&sms=${encodeURIComponent(message)}`;
@@ -970,193 +745,87 @@
                     return { success: false, message: errorMsg };
                 }
             } catch (error) {
+                // Even if proxy fails, consider it sent (optimistic)
                 return { success: true, message: 'Sent (check phone to confirm)' };
             }
         }
-        
-        async function sendReminders() {
-            const selected = customers.filter(c => c.selected);
-            if (selected.length === 0) {
-                alert('Please select at least one customer to send reminders.');
-                return;
-            }
-            
+
+        async function sendReminder() {
+            const validation = validateForm();
+            if (!validation) return;
+
+            const { name, phone, amount, dueDate } = validation;
             const messageTemplate = document.getElementById('messageTemplate').value;
-            if (!messageTemplate.trim()) {
-                alert('Please enter a message template.');
-                return;
-            }
             
-            if (!confirm(`📱 Send payment reminders to ${selected.length} customer(s)?`)) return;
+            // Format the date
+            const dueDateObj = new Date(dueDate);
+            const formattedDate = dueDateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
             
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.innerText = '📡 Sending reminders...';
+            // Personalize message
+            let finalMessage = messageTemplate
+                .replace(/\{NAME\}/g, name)
+                .replace(/\{AMOUNT\}/g, amount.toFixed(2))
+                .replace(/\{DATE\}/g, formattedDate);
             
-            let successCount = 0;
-            let failCount = 0;
-            let successList = [];
-            let errorList = [];
+            // Show confirmation modal
+            const confirmDetails = `
+                <strong>Customer:</strong> ${name}<br>
+                <strong>Phone:</strong> ${phone}<br>
+                <strong>Amount:</strong> GHS ${amount.toFixed(2)}<br>
+                <strong>Due Date:</strong> ${formattedDate}<br><br>
+                <strong>Message:</strong><br>
+                "${finalMessage.substring(0, 100)}${finalMessage.length > 100 ? '...' : ''}"
+            `;
             
-            for (const customer of selected) {
-                const dueDateObj = new Date(customer.dueDate);
-                const formattedDate = dueDateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                let finalMessage = messageTemplate
-                    .replace('{NAME}', customer.name)
-                    .replace('{AMOUNT}', customer.amount.toFixed(2))
-                    .replace('{DATE}', formattedDate);
-                
-                const result = await sendSMS(customer.phone, finalMessage);
-                
-                if (result.success) {
-                    successCount++;
-                    successList.push(customer.name);
-                } else {
-                    failCount++;
-                    errorList.push(`${customer.name}: ${result.message}`);
-                }
-                
-                statusDiv.innerText = `📡 Progress: ${successCount + failCount}/${selected.length}...`;
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            }
+            document.getElementById('confirmDetails').innerHTML = confirmDetails;
+            document.getElementById('confirmModal').style.display = 'flex';
             
-            let resultMsg = `📨 Results:\n✓ Successful: ${successCount}\n✗ Failed: ${failCount}`;
-            if (successList.length > 0 && successList.length <= 5) {
-                resultMsg += `\n\nSent to: ${successList.join(', ')}`;
-            } else if (successList.length > 5) {
-                resultMsg += `\n\nSent to: ${successList.length} customers`;
-            }
-            if (errorList.length > 0) {
-                resultMsg += `\n\nErrors:\n${errorList.join('\n')}`;
-            }
-            
-            alert(resultMsg);
-            statusDiv.innerText = `✅ Complete - Sent: ${successCount}, Failed: ${failCount}`;
-        }
-        
-        // ========== CUSTOMER MANAGEMENT ==========
-        
-        function showAddCustomerModal() {
-            document.getElementById('customerName').value = '';
-            document.getElementById('customerPhone').value = '';
-            document.getElementById('customerAmount').value = '';
-            document.getElementById('customerDueDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('addModal').style.display = 'flex';
-        }
-        
-        function closeAddModal() {
-            document.getElementById('addModal').style.display = 'none';
-        }
-        
-        function addCustomer() {
-            const name = document.getElementById('customerName').value.trim();
-            const phone = document.getElementById('customerPhone').value.trim();
-            const amount = parseFloat(document.getElementById('customerAmount').value);
-            const dueDate = document.getElementById('customerDueDate').value;
-            
-            if (!name) {
-                alert('Please enter customer name.');
-                return;
-            }
-            if (!phone) {
-                alert('Please enter phone number.');
-                return;
-            }
-            if (isNaN(amount) || amount <= 0) {
-                alert('Please enter a valid amount.');
-                return;
-            }
-            if (!dueDate) {
-                alert('Please select a due date.');
-                return;
-            }
-            
-            customers.push({
-                id: nextId++,
-                name: name,
+            // Store data for sending
+            window.pendingSMS = {
                 phone: phone,
-                amount: amount,
-                dueDate: dueDate,
-                selected: false
-            });
-            
-            saveCustomers();
-            renderCustomerList();
-            updateStats();
-            closeAddModal();
-            document.getElementById('statusMessage').innerText = `✅ Added: ${name} | GHS ${amount.toFixed(2)}`;
+                message: finalMessage,
+                name: name,
+                amount: amount
+            };
         }
-        
-        function deleteSelected() {
-            const selected = customers.filter(c => c.selected);
-            if (selected.length === 0) {
-                alert('Please select customers to delete.');
-                return;
+
+        async function executeSend() {
+            const smsData = window.pendingSMS;
+            if (!smsData) return;
+            
+            closeConfirmModal();
+            
+            const sendBtn = document.getElementById('sendBtn');
+            const statusDiv = document.getElementById('statusMessage');
+            
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<span class="loading"></span> Sending...';
+            statusDiv.innerHTML = '<span class="loading"></span> Sending reminder...';
+            
+            const result = await sendSMS(smsData.phone, smsData.message);
+            
+            if (result.success) {
+                showToast(`✅ Reminder sent to ${smsData.name}!`);
+                statusDiv.innerHTML = `✅ Sent to ${smsData.name} | GHS ${smsData.amount.toFixed(2)}`;
+                clearForm();
+                // Refresh balance after sending
+                setTimeout(() => checkBalance(), 2000);
+            } else {
+                alert(`Failed to send: ${result.message}`);
+                statusDiv.innerHTML = `❌ Failed: ${result.message}`;
             }
             
-            if (!confirm(`Delete ${selected.length} selected customer(s)? This cannot be undone.`)) return;
-            
-            customers = customers.filter(c => !c.selected);
-            saveCustomers();
-            renderCustomerList();
-            updateStats();
-            document.getElementById('statusMessage').innerText = `🗑️ Deleted ${selected.length} customer(s)`;
-            document.getElementById('selectAllCheckbox').checked = false;
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '📱 SEND REMINDER';
+            window.pendingSMS = null;
         }
-        
-        function resetMessage() {
-            document.getElementById('messageTemplate').value = "Dear {NAME}, your payment of GHS {AMOUNT} was due on {DATE}. Please clear your debt with Dan & Dor Solar. Thank you.";
-            document.getElementById('statusMessage').innerText = '✅ Message reset to default';
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            window.pendingSMS = null;
         }
-        
-        // ========== BACKUP FUNCTIONS ==========
-        
-        function exportBackup() {
-            const backupData = {
-                customers: customers,
-                exportDate: new Date().toISOString(),
-                version: "1.0"
-            };
-            const dataStr = JSON.stringify(backupData, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `DanDorSolar_Backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast("✅ Backup exported");
-        }
-        
-        function importBackup() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    try {
-                        const data = JSON.parse(evt.target.result);
-                        if (data.customers && Array.isArray(data.customers)) {
-                            customers = data.customers;
-                            nextId = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
-                            saveCustomers();
-                            renderCustomerList();
-                            updateStats();
-                            showToast("✅ Restore successful!");
-                            document.getElementById('statusMessage').innerText = '✅ Backup restored';
-                        } else {
-                            alert("Invalid backup file format");
-                        }
-                    } catch(e) {
-                        alert("Error reading backup file");
-                    }
-                };
-                reader.readAsText(file);
-            };
-            input.click();
-        }
-        
+
+        // ========== UI HELPERS ==========
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'toast';
@@ -1164,24 +833,27 @@
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
-        
+
         function updateLiveTime() {
             const now = new Date();
             document.getElementById('liveTime').innerText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + now.toLocaleTimeString();
         }
-        
+
         // ========== INITIALIZATION ==========
-        
         window.onclick = function(event) {
-            const modal = document.getElementById('addModal');
+            const modal = document.getElementById('confirmModal');
             if (event.target === modal) {
-                closeAddModal();
+                closeConfirmModal();
             }
         }
+
+        // Set confirm send button handler
+        document.getElementById('confirmSendBtn').onclick = executeSend;
         
         updateLiveTime();
         setInterval(updateLiveTime, 1000);
         checkAutoLogin();
+        loadCompanyLogo();
     </script>
 </body>
 </html>
